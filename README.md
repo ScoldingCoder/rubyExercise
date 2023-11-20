@@ -1,4 +1,4 @@
-#Ruby Exercise from the Odin Project
+# Ruby Exercise from the Odin Project
 
 - Bubble Sort
 - Ceaser Chiper

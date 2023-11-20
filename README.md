@@ -1,7 +1,7 @@
-# Ruby Exercise from the Odin Project
+# Ruby Exercises from the Odin Project
 
 - Bubble Sort
-- Ceaser Chiper
+- Caesar Cipher
 - Stock Picker
 - SubString
 - Console Tic Tac Toe

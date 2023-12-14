@@ -5,4 +5,5 @@
 - Stock Picker
 - SubString
 - Console Tic Tac Toe
+- Console Mastermind
 

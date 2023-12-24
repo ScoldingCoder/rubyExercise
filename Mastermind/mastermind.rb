@@ -20,7 +20,7 @@ class Game < Player
 
     def initialize()
 
-         @round_count = 0
+         @round_count = 1
         puts "This is where i would put the introduction and explain the rules and how to play"
         
     end
@@ -64,8 +64,24 @@ class Game < Player
     def userIsCodebreaker()
 
         computer_code = getComputerCode()
-        puts "Enter your guess"
-        getUserCode()
+
+        # Create another loop for the actual game which tracks number of rounds played or when the game is done
+
+
+        #This loops prompts user for code and validates it 
+        loop do
+            puts"Enter your guess"
+            user_guess = getUserNumbers()
+            if (( user_guess.length == 4 ) && (user_guess.all?('1'..'6') ) )
+                compareGuessAndCode(user_guess , computer_code )
+                break
+                
+            end
+         
+        end
+
+       
+        #puts "#{user_guess}"
 
         #puts "I am the codebreaker"
 
@@ -79,17 +95,40 @@ class Game < Player
 
     end
 
-
+    #get the secret code from the computer
     def  getComputerCode()
         random = Random.new
-        computer_code = Array.new(4){random.rand(1..6)}
+        computer_code = Array.new(4){random.rand(1..6).to_s}
+
+        puts "The computer code is #{computer_code}"
+        computer_code
 
     end
 
-    def getUserCode()
-        user_code = gets.chomp
-        user_code =user_code.split("")
-        puts user_code
+
+    # Gets the secret code or guess from human user
+    def getUserNumbers()
+        user_number = gets.chomp
+        user_number =user_number.split("")
+        
+    end
+
+
+    def compareGuessAndCode(guess,code)
+
+        if (guess == code)
+            puts "The codebreaker has won!"
+
+        elsif( !( (guess & code).empty? ) )
+
+            puts "Checking for hints "
+
+        else
+
+            puts "Your guess does not contain any element in the secret code!"
+        
+        end  
+
     end
 
 end

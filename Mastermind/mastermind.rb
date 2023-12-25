@@ -21,6 +21,7 @@ class Game < Player
     def initialize()
 
          @round_count = 1
+         
         puts "This is where i would put the introduction and explain the rules and how to play"
         
     end
@@ -49,11 +50,15 @@ class Game < Player
 
     def executeRole (selection)
 
+        code_breaker = Player.new
+        code_maker = Player.new
+
         case selection
         when '1'
-            userIsCodebreaker()
+            userIsCodebreaker(code_maker,code_breaker)
+           
         when '2'
-            userIsCodemaker()   
+            userIsCodemaker(code_maker,code_breaker)   
         
         else
             "Idk what happened to end up here"
@@ -61,26 +66,21 @@ class Game < Player
 
     end
 
-    def userIsCodebreaker()
+    def userIsCodebreaker(maker, breaker)
 
-        computer_code = getComputerCode()
+        maker.code = getComputerCode()
 
         # Create another loop for the actual game which tracks number of rounds played or when the game is done
 
 
         #This loops prompts user for code and validates it 
-        loop do
+     
             puts"Enter your guess"
-            user_guess = getUserNumbers()
-            if (( user_guess.length == 4 ) && (user_guess.all?('1'..'6') ) )
-                compareGuessAndCode(user_guess , computer_code )
-                break
-                
-            end
-         
-        end
+            breaker.code = getUserNumbers()
+            
+            compareGuessAndCode(breaker.code, maker.code)
+    
 
-       
         #puts "#{user_guess}"
 
         #puts "I am the codebreaker"
@@ -89,7 +89,7 @@ class Game < Player
 
 
 
-    def userIsCodemaker()
+    def userIsCodemaker(maker, breaker)
 
         puts "I am the codemaker"
 
@@ -108,8 +108,15 @@ class Game < Player
 
     # Gets the secret code or guess from human user
     def getUserNumbers()
-        user_number = gets.chomp
-        user_number =user_number.split("")
+        loop do
+            user_number = gets.chomp
+            user_number =user_number.split("")
+            if (( user_number.length == 4 ) && (user_number.all?('1'..'6') ) )  
+                 return user_number 
+                break  
+            end
+         puts "The number entered is not valid. Please try again"
+        end
         
     end
 

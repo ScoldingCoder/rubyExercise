@@ -13,14 +13,14 @@ class Player
 end
 
 
-
 class Game < Player
 
     attr_accessor :round_count
 
     def initialize()
 
-         @round_count = 1
+         @@round_count = 1
+         @@game_done = false
          
         puts "This is where i would put the introduction and explain the rules and how to play"
         
@@ -68,19 +68,21 @@ class Game < Player
 
     def userIsCodebreaker(maker, breaker)
 
-        maker.code = getComputerCode()
+        #maker.code = getComputerCode()
+        maker.code = ['1','1','2','2']
 
-        # Create another loop for the actual game which tracks number of rounds played or when the game is done
-
-
-        #This loops prompts user for code and validates it 
-     
-            puts"Enter your guess"
-            breaker.code = getUserNumbers()
-            
-            compareGuessAndCode(breaker.code, maker.code)
     
 
+        while (@@round_count < 11 &&  @@game_done == false)
+
+            puts"Round # #{@@round_count}"
+            puts"Enter your guess"
+            breaker.code = getUserNumbers()
+            @@round_count+=1
+            hint = compareGuessAndCode(breaker.code, maker.code)
+            
+    
+        end 
         #puts "#{user_guess}"
 
         #puts "I am the codebreaker"
@@ -120,15 +122,38 @@ class Game < Player
         
     end
 
-
+    #comapres the guess made to the secret code, returns the hint or the lets the code breaker know
     def compareGuessAndCode(guess,code)
 
         if (guess == code)
             puts "The codebreaker has won!"
+            @@game_done = true
 
         elsif( !( (guess & code).empty? ) )
 
-            puts "Checking for hints "
+            dictionary = code.uniq
+            black_peg = 0 # for numbers found in the correct position
+            white_peg = 0 # for numbers found but in the wrong position
+           
+            dictionary.each {|element|
+                guess.each_index{|index|
+
+                if (element == guess[index] && guess[index]== code[index] )
+                    black_peg +=1
+                    
+                elsif ( guess[index] == element && guess.count(guess[ index ]) == 1)
+                    white_peg +=1
+                end    
+
+              }
+
+            }
+
+            score = []
+            ["B"].cycle(black_peg){|element| score.push(element)}
+            ["W"].cycle(white_peg){|element| score.push(element)}
+            puts "Hint:#{score.to_s}"
+            score
 
         else
 

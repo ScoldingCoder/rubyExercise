@@ -27,6 +27,7 @@ class Game < Player
     end
 
 
+    #user selects to be the codemaker or codebreaker
     def selectRole()
         puts "Press '1' to be the codebreaker and '2' to be the codemaker"
         option = gets.chomp
@@ -35,7 +36,7 @@ class Game < Player
        
     end
 
-
+    #validates the role selection option
     def vaidateRole(selection)
 
         if (selection.to_i == 1 || selection.to_i == 2)
@@ -48,6 +49,7 @@ class Game < Player
     end
 
 
+    # Plays game based on user role
     def executeRole (selection)
 
         code_breaker = Player.new
@@ -66,34 +68,134 @@ class Game < Player
 
     end
 
+    #user chose to be the codebreaker
     def userIsCodebreaker(maker, breaker)
 
-        #maker.code = getComputerCode()
-        maker.code = ['1','1','2','2']
+        maker.code = getComputerCode()
+       
 
-    
+        while (@@round_count < 13 &&  @@game_done == false)
 
-        while (@@round_count < 11 &&  @@game_done == false)
 
             puts"Round # #{@@round_count}"
+
+            if (@@round_count == 12)
+                puts "This is you last attempt!"
+            end 
+
             puts"Enter your guess"
             breaker.code = getUserNumbers()
             @@round_count+=1
             hint = compareGuessAndCode(breaker.code, maker.code)
+            if (hint != "BBBB")
+                 puts "Hint:#{hint.join}"
+
+            else 
+
+            @@game_done = true
+            puts 'The codebreaker won!'
+        
+            
+            end
             
     
         end 
-        #puts "#{user_guess}"
 
-        #puts "I am the codebreaker"
+        
+
+        if (@@game_done == false && @@round_count >=12)
+
+            @@game_done = true
+            puts "The codemaker won!"
+            puts "The secret code was #{maker.code.join}"
+
+
+        end 
+        
 
     end
 
 
-
+    #user chose to be the codemaker
     def userIsCodemaker(maker, breaker)
 
-        puts "I am the codemaker"
+        puts " Please enter your secret code"
+
+        maker.code = getUserNumbers()
+        valid_codes = (['1','2','3','4','5','6'].repeated_permutation(4)).to_a
+       
+
+
+        while (@@round_count < 13 &&  @@game_done == false)
+
+
+            puts"Round # #{@@round_count}"
+
+            if (@@round_count == 12)
+                puts "This is you last attempt!"
+            end 
+
+            puts"Enter your guess"
+
+            # the first guess is a pair of repating numbers selected at random
+            if(@@round_count == 1)
+
+                numbers = ['1','2','3','4','5','6']
+                first_guess =[]
+
+                2.times{
+                random = Random.new
+                index = random.rand(0..numbers.size-1)
+                [numbers[index]].cycle(2){|element| first_guess.push(element)}
+                numbers.delete_at(index)
+                first_guess
+
+                }
+                puts "#{first_guess.join}"
+                breaker.code = first_guess
+
+            else
+
+               random = Random.new
+               index = random.rand(0..valid_codes.length-1)
+               puts "#{valid_codes[index].join}"
+               breaker.code = valid_codes[index] 
+                
+  
+            end
+
+
+          
+            @@round_count+=1
+
+            hint = compareGuessAndCode(breaker.code, maker.code)
+            valid_codes = filterFromList(breaker.code, hint, valid_codes )
+            if (hint != "BBBB")
+                puts "Hint:#{hint.join}"
+
+            else 
+
+                @@game_done = true
+                puts 'The codebreaker won!'
+            
+            end 
+    
+        end 
+
+        if (@@game_done == false && @@round_count >=13)
+
+            @@game_done = true
+            puts "The codemaker won!"
+            puts "The secret code was #{maker.code.join}"
+
+
+        end 
+        
+       
+
+       
+
+       
 
     end
 
@@ -101,9 +203,6 @@ class Game < Player
     def  getComputerCode()
         random = Random.new
         computer_code = Array.new(4){random.rand(1..6).to_s}
-
-        puts "The computer code is #{computer_code}"
-        computer_code
 
     end
 
@@ -122,12 +221,12 @@ class Game < Player
         
     end
 
-    #comapres the guess made to the secret code, returns the hint or the lets the code breaker know
+    #comapres the guess made to the secret code, returns the 
     def compareGuessAndCode(guess,code)
 
         if (guess == code)
-            puts "The codebreaker has won!"
-            @@game_done = true
+            
+            score = "BBBB"
 
         elsif( !( (guess & code).empty? ) )
 
@@ -141,7 +240,7 @@ class Game < Player
                 if (element == guess[index] && guess[index]== code[index] )
                     black_peg +=1
                     
-                elsif ( guess[index] == element && guess.count(guess[ index ]) == 1)
+                elsif ( guess[index] == element && guess.count(guess[index]) <= code.count(guess[index]) )
                     white_peg +=1
                 end    
 
@@ -152,14 +251,35 @@ class Game < Player
             score = []
             ["B"].cycle(black_peg){|element| score.push(element)}
             ["W"].cycle(white_peg){|element| score.push(element)}
-            puts "Hint:#{score.to_s}"
+            
             score
 
         else
 
-            puts "Your guess does not contain any element in the secret code!"
+            score = []
         
         end  
+
+    end
+
+    #narrows valid guess bas on Donald Knuth Algorithm
+    def filterFromList (assumed_code,score,list)
+
+
+        list.each{|assumed_guess|
+
+            hint = compareGuessAndCode( assumed_guess, assumed_code)
+
+
+            if (hint != score)
+                list.delete(assumed_guess)
+
+            end
+
+        }
+
+        list
+
 
     end
 

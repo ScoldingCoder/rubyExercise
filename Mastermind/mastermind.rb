@@ -1,4 +1,5 @@
 require 'pry-byebug'
+require 'colorize'
 
 class Player
   attr_accessor :code
@@ -15,7 +16,28 @@ class Game < Player
     @@round_count = 1
     @@game_done = false
 
-    puts 'This is where i would put the introduction and explain the rules and how to play'
+    puts 'Welcome to Mastermind!'.bold
+    puts 'How to play:'.underline
+    puts ' '
+    puts "\u2022" + " This is a two player game. In this version, it's you vs the computer!"
+    puts ' '
+    puts "\u2022" + " One player takes the role of 'codemaker' and the other player is the 'codebreaker' "
+    puts ' '
+    puts "\u2022" + ' The codemaker enters a four-digit secret code using the number 1-6. Repition is allowed'
+    puts ' '
+    puts "\u2022" + ' The codebreaker then tries to guess the secret code.'
+    puts ' '
+    puts "\u2022" + " If the codebreaker's guess is incorrect, a hint will be provided"
+    puts ' '
+    puts "\u2022" + " The hint consist of the letters 'B' and 'w' - representing a Black and white peg respectively"
+    puts ' '
+    puts "\u2022" + " A 'B' indicates that the guess has a number in the correct position and a
+ 'W' indicates that the guess conatins a number that is also in the code but in the wrong position"
+    puts ' '
+    puts "\u2022" + " The codemaker wins if the codebreaker is unable to figure out the secret code within 10 guesses
+  and the codebreaker wins if they are able to figure out the code within 10 guess "
+    puts ' '
+    puts 'Good luck and have fun!'
   end
 
   # user selects to be the codemaker or codebreaker
@@ -29,6 +51,7 @@ class Game < Player
   # validates the role selection option
   def vaidateRole(selection)
     if selection.to_i == 1 || selection.to_i == 2
+      system('clear')
       selection
     else
       puts 'Invalid option entered'
@@ -50,13 +73,14 @@ class Game < Player
       userIsCodemaker(code_maker, code_breaker)
 
     else
-      'Idk what happened to end up here'
+      puts 'Idk what happened to end up here'
     end
   end
 
   # user chose to be the codebreaker
   def userIsCodebreaker(maker, breaker)
     maker.code = getComputerCode
+    puts "The codemaker has made their secert code! \nCodebreaker, it's your turn!\n\n"
 
     while @@round_count < 11 && @@game_done == false
 
@@ -69,7 +93,7 @@ class Game < Player
       @@round_count += 1
       hint = compareGuessAndCode(breaker.code, maker.code)
       if hint != 'BBBB'
-        puts "Hint:#{hint.join}"
+        puts "Hint:#{hint.join} \n\n"
 
       else
 
@@ -89,10 +113,12 @@ class Game < Player
 
   # user chose to be the codemaker
   def userIsCodemaker(maker, breaker)
-    puts ' Please enter your secret code'
+    puts 'Codemaker, please enter your secret code'
 
     maker.code = getUserNumbers
     valid_codes = %w[1 2 3 4 5 6].repeated_permutation(4).to_a
+
+    puts "It's the codebreaker's turn! \n\n"
 
     while @@round_count < 11 && @@game_done == false
 
@@ -131,12 +157,15 @@ class Game < Player
       hint = compareGuessAndCode(breaker.code, maker.code)
       valid_codes = filterFromList(breaker.code, hint, valid_codes)
 
+      sleep(1.5)
+
       if hint != 'BBBB'
-        puts "Hint:#{hint.join}"
+        puts "Hint:#{hint.join}\n\n"
 
       else
 
         @@game_done = true
+        puts ' '
         puts 'The codebreaker won!'
 
       end
@@ -207,12 +236,12 @@ class Game < Player
 
   # narrows valid guess based on Donald Knuth Algorithm
   def filterFromList(assumed_guess, score, list)
+    list.delete(assumed_guess)
     list.each do |assumed_code|
       hint = compareGuessAndCode(assumed_guess, assumed_code)
-
       list.delete(assumed_code) if hint != score
     end
-
+    puts 'Nah Something is wrong' if list.include?(assumed_guess)
     list
   end
 end
